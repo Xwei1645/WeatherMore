@@ -10,3 +10,6 @@ url: https://github.com/Xwei645/WeatherMore
 version: 0.0.0.1
 apiVersion: 1.5.0
 author: Xwei1645
+repoOwner: Xwei1645
+repoName: WeatherMore
+assetsRoot: master/WeatherMore
