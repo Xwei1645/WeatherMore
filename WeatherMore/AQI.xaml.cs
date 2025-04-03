@@ -19,7 +19,7 @@ namespace WeatherMore;
 )]
 public partial class AQI : ComponentBase
 {
-    private const string CacheFilePath = "AQI.json";
+    private const string CacheFilePath = "AQICache.json";
     private System.Timers.Timer _timer;
 
     public AQI()
