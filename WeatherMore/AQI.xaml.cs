@@ -2,14 +2,12 @@
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using MaterialDesignThemes.Wpf;
 using ClassIsland.Core;
-using Newtonsoft.Json;
 
 namespace WeatherMore;
 
@@ -21,10 +19,41 @@ namespace WeatherMore;
 )]
 public partial class AQI : ComponentBase
 {
+    private const string CacheFilePath = "AQI.json";
+    private System.Timers.Timer _timer;
+
     public AQI()
     {
         InitializeComponent();
+        LoadCachedData();
+        // 在构造函数中初始化 _timer
+        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(0.1).TotalMilliseconds);
+        _timer.Elapsed += (sender, e) => LoadAQIDataAsync();
+        _timer.AutoReset = true;
+        _timer.Start();
         LoadAQIDataAsync();
+    }
+
+    private void LoadCachedData()
+    {
+        if (File.Exists(CacheFilePath))
+        {
+            try
+            {
+                var json = File.ReadAllText(CacheFilePath);
+                var data = JObject.Parse(json);
+                var aqi = data["now"]?["aqi"]?.ToString();
+                if (aqi != null)
+                {
+                    var formattedAqi = $"AQI {aqi}";
+                    Dispatcher.Invoke(() => AQIText.Text = formattedAqi);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WeatherMore][AQI] 读取缓存时出错: {ex.Message}");
+            }
+        }
     }
 
     private async void LoadAQIDataAsync()
@@ -40,7 +69,7 @@ public partial class AQI : ComponentBase
 
             using (var httpClient = new HttpClient())
             {
-                Console.WriteLine($"[WeatherMore][AQI] 请求 url: {url}");
+                Console.WriteLine("[WeatherMore][AQI] 向 QWEATHER 请求 AQI 数据");
                 var response = await httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
@@ -72,6 +101,7 @@ public partial class AQI : ComponentBase
                     {
                         var formattedAqi = $"AQI {aqi}";
                         Dispatcher.Invoke(() => AQIText.Text = formattedAqi);
+                        SaveDataToCache(json);
                     }
                     else
                     {
@@ -90,6 +120,19 @@ public partial class AQI : ComponentBase
         {
             Console.WriteLine($"[WeatherMore][AQI] 未知错误: {e.Message}");
             Dispatcher.Invoke(() => AQIText.Text = "AQI 加载失败");
+        }
+    }
+
+    private void SaveDataToCache(JObject data)
+    {
+        try
+        {
+            File.WriteAllText(CacheFilePath, data.ToString());
+            Console.WriteLine("[WeatherMore][AQI] 缓存 AQI 数据成功");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WeatherMore][AQI] 缓存时出错: {ex.Message}");
         }
     }
 
