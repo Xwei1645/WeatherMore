@@ -22,6 +22,8 @@ namespace WeatherMore;
 public partial class Indices : ComponentBase
 {
     private static Indices _instance;
+    private const string CacheFilePath = "IndicesCache.json";
+    private System.Timers.Timer _timer;
 
     public static Indices GetInstance()
     {
@@ -32,7 +34,45 @@ public partial class Indices : ComponentBase
     {
         InitializeComponent();
         _instance = this;
+        LoadCachedData();
+        // 在构造函数中初始化 _timer，设置为每10分钟刷新一次
+        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(10).TotalMilliseconds);
+        _timer.Elapsed += (sender, e) => LoadIndicesDataAsync("1");
+        _timer.AutoReset = true;
+        _timer.Start();
         LoadIndicesDataAsync("1");
+    }
+
+    private void LoadCachedData()
+    {
+        if (File.Exists(CacheFilePath))
+        {
+            try
+            {
+                var json = File.ReadAllText(CacheFilePath);
+                var data = JObject.Parse(json);
+                var daily = data["daily"] as JArray;
+                if (daily != null)
+                {
+                    foreach (var item in daily)
+                    {
+                        var name = item["name"]?.ToString();
+                        var category = item["category"]?.ToString();
+
+                        if (name != null && category != null)
+                        {
+                            var singleLineInfo = $"{name}: {category}";
+                            Dispatcher.Invoke(() => IndicesText.Text = singleLineInfo);
+                            break; // 找到第一个有效数据后就停止遍历
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WeatherMore][Indices] 读取缓存时出错: {ex.Message}");
+            }
+        }
     }
 
     public async void LoadIndicesDataAsync(string type)
@@ -57,7 +97,6 @@ public partial class Indices : ComponentBase
                 using (var streamReader = new StreamReader(deflateStream))
                 {
                     var responseBody = await streamReader.ReadToEndAsync();
-                    // Console.WriteLine(responseBody);
 
                     if (!IsValidJson(responseBody))
                     {
@@ -87,6 +126,7 @@ public partial class Indices : ComponentBase
                             {
                                 var singleLineInfo = $"{name}: {category}";
                                 Dispatcher.Invoke(() => IndicesText.Text = singleLineInfo);
+                                SaveDataToCache(json);
                                 break; // 找到第一个有效数据后就停止遍历
                             }
                         }
@@ -108,6 +148,19 @@ public partial class Indices : ComponentBase
         {
             Console.WriteLine($"[WeatherMore][Indices] 未知错误: {e.Message}");
             Dispatcher.Invoke(() => IndicesText.Text = "生活指数加载失败");
+        }
+    }
+
+    private void SaveDataToCache(JObject data)
+    {
+        try
+        {
+            File.WriteAllText(CacheFilePath, data.ToString());
+            Console.WriteLine("[WeatherMore][Indices] 缓存天气指数数据成功");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WeatherMore][Indices] 缓存时出错: {ex.Message}");
         }
     }
 
