@@ -15,7 +15,7 @@ namespace WeatherMore;
 
 [ComponentInfo(
     "83402E4E-8CE5-416F-A301-F2A527A65406",
-    "Indices",
+    "天气指数",
     PackIconKind.Info,
     "显示当前的天气生活指数。"
 )]

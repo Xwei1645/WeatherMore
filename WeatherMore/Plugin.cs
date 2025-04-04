@@ -12,6 +12,6 @@ public class Plugin : PluginBase
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
         services.AddComponent<AQI>();
-        services.AddComponent<Indices>();
+        services.AddComponent<Indices, IndicesSettings>();
     }
 }

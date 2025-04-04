@@ -27,7 +27,7 @@ public partial class AQI : ComponentBase
         InitializeComponent();
         LoadCachedData();
         // 在构造函数中初始化 _timer
-        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(0.1).TotalMilliseconds);
+        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(5).TotalMilliseconds);
         _timer.Elapsed += (sender, e) => LoadAQIDataAsync();
         _timer.AutoReset = true;
         _timer.Start();

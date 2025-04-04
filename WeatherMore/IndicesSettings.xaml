@@ -1,0 +1,36 @@
+﻿<ci:ComponentBase x:Class="WeatherMore.IndicesSettings"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:local="clr-namespace:WeatherMore"
+                  xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                  mc:Ignorable="d"
+                  d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel Style="{StaticResource SettingsPageStackPanelStyle}">
+        <ci:SettingsCard IconGlyph="ClockDigital"
+                         Header="天气指数类型"
+                         Description="选择要显示在主界面上的天气指数。">
+            <ci:SettingsCard.Switcher>
+                <ComboBox Width="200" SelectedIndex="0">
+                    <ComboBoxItem Content="运动指数" Tag="1" />
+                    <ComboBoxItem Content="洗车指数" Tag="2" />
+                    <ComboBoxItem Content="穿衣指数" Tag="3" />
+                    <ComboBoxItem Content="钓鱼指数" Tag="4" />
+                    <ComboBoxItem Content="紫外线指数" Tag="5" />
+                    <ComboBoxItem Content="旅游指数" Tag="6" />
+                    <ComboBoxItem Content="花粉过敏指数" Tag="7" />
+                    <ComboBoxItem Content="舒适度指数" Tag="8" />
+                    <ComboBoxItem Content="感冒指数" Tag="9" />
+                    <ComboBoxItem Content="空气污染扩散条件指数" Tag="10" />
+                    <ComboBoxItem Content="空调开启指数" Tag="11" />
+                    <ComboBoxItem Content="太阳镜指数" Tag="12" />
+                    <ComboBoxItem Content="化妆指数" Tag="13" />
+                    <ComboBoxItem Content="晾晒指数" Tag="14" />
+                    <ComboBoxItem Content="交通指数" Tag="15" />
+                    <ComboBoxItem Content="防晒指数" Tag="16" />
+                </ComboBox>
+            </ci:SettingsCard.Switcher>
+        </ci:SettingsCard>
+    </StackPanel>
+</ci:ComponentBase>
