@@ -12,7 +12,9 @@
                          Header="天气指数类型"
                          Description="选择要显示在主界面上的天气指数。">
             <ci:SettingsCard.Switcher>
-                <ComboBox Width="200" SelectedIndex="0">
+                <ComboBox Width="200" 
+                          SelectedItem="{Binding SelectedIndexType, Mode=TwoWay}"
+                          SelectionChanged="ComboBox_SelectionChanged">
                     <ComboBoxItem Content="运动指数" Tag="1" />
                     <ComboBoxItem Content="洗车指数" Tag="2" />
                     <ComboBoxItem Content="穿衣指数" Tag="3" />

@@ -21,13 +21,21 @@ namespace WeatherMore;
 )]
 public partial class Indices : ComponentBase
 {
+    private static Indices _instance;
+
+    public static Indices GetInstance()
+    {
+        return _instance;
+    }
+
     public Indices()
     {
         InitializeComponent();
-        LoadIndicesDataAsync();
+        _instance = this;
+        LoadIndicesDataAsync("1");
     }
 
-    private async void LoadIndicesDataAsync()
+    public async void LoadIndicesDataAsync(string type)
     {
         try
         {
@@ -36,11 +44,11 @@ public partial class Indices : ComponentBase
             locationId = locationId.Split(':')[1];
 
             var apiKey = "83f59d5f69444ee59600c90637759aad";
-            var url = $"https://devapi.qweather.com/v7/indices/1d?key={apiKey}&location={locationId}&type=1,2";
+            var url = $"https://devapi.qweather.com/v7/indices/1d?key={apiKey}&location={locationId}&type={type}";
 
             using (var httpClient = new HttpClient())
             {
-                Console.WriteLine($"[WeatherMore][Indices] 向 QWEATHER 请求天气指数数据");
+                Console.WriteLine($"[WeatherMore][Indices] 向 QWEATHER 请求天气指数数据，类型: {type}");
                 var response = await httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
@@ -49,6 +57,7 @@ public partial class Indices : ComponentBase
                 using (var streamReader = new StreamReader(deflateStream))
                 {
                     var responseBody = await streamReader.ReadToEndAsync();
+                    // Console.WriteLine(responseBody);
 
                     if (!IsValidJson(responseBody))
                     {
@@ -69,7 +78,6 @@ public partial class Indices : ComponentBase
                     var daily = json["daily"] as JArray;
                     if (daily != null)
                     {
-                        var indicesInfo = new StringBuilder();
                         foreach (var item in daily)
                         {
                             var name = item["name"]?.ToString();
@@ -77,10 +85,11 @@ public partial class Indices : ComponentBase
 
                             if (name != null && category != null)
                             {
-                                indicesInfo.AppendLine($"{name}: {category}");
+                                var singleLineInfo = $"{name}: {category}";
+                                Dispatcher.Invoke(() => IndicesText.Text = singleLineInfo);
+                                break; // 找到第一个有效数据后就停止遍历
                             }
                         }
-                        Dispatcher.Invoke(() => IndicesText.Text = indicesInfo.ToString());
                     }
                     else
                     {
